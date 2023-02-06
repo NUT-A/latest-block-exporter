@@ -13,7 +13,7 @@ export class WalletRouterFactory {
     constructor(formatter: Formatter) {
         this.formatter = formatter
 
-        this.ethMainnetFetcher = new WalletFetcher("https://eth.llamarpc.com");
+        this.ethMainnetFetcher = new WalletFetcher("https://eth.rpc.blxrbdn.com");
         this.ethGoerliFetcher = new WalletFetcher("https://eth-goerli.public.blastapi.io");
     }
 
