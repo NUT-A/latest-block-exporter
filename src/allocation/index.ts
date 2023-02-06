@@ -30,7 +30,7 @@ export class AllocationManager {
     async fetchAllocation(indexer: string): Promise<AllocationInfo[]> {
         const body = {
             "query": `{
-                allocations(where:{indexer:"${indexer}",closedAtBlockNumber:null}) {
+                allocations(where:{indexer:"${indexer.toLowerCase()}",closedAtBlockNumber:null}) {
                     createdAt
                     subgraphDeployment {
                         ipfsHash
