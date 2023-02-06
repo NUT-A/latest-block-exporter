@@ -6,6 +6,7 @@ import { Formatter } from './formatter';
 import { AnyBlockchainMetricsManager } from './blockchains/blockchain';
 import { WalletFetcher } from './wallet';
 import { WalletRouterFactory } from './wallet/router';
+import { AllocationRouterFactory } from './allocation/router';
 
 const app = express()
 
@@ -87,5 +88,8 @@ app.use('/avalanche', avalancheRouter)
 
 const walletRouterFactory = new WalletRouterFactory(formatter);
 app.use('/wallet', walletRouterFactory.make())
+
+const allocationRouterFactory = new AllocationRouterFactory(formatter)
+app.use('/allocation', allocationRouterFactory.make())
 
 app.listen(8081)

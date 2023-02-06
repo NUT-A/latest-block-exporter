@@ -2,8 +2,6 @@ import { Router } from "express";
 import { WalletFetcher } from ".";
 import { Formatter } from "../formatter";
 
-type Network = "eth-mainnet" | "eth-goerli"
-
 export class WalletRouterFactory {
     private formatter: Formatter
 
@@ -69,7 +67,7 @@ export class WalletRouterFactory {
             
             const addressesString = req.params.addresses;
 
-            const addresses = addressesString.split(",");
+            const addresses = addressesString.replace(" ", "").split(",");
             const response = await this.getBalances(network, addresses);
 
             res.send(response);
