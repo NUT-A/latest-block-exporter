@@ -4,6 +4,8 @@ import { RPCManager } from './rpc';
 import { RouterFactory } from './roter';
 import { Formatter } from './formatter';
 import { AnyBlockchainMetricsManager } from './blockchains/blockchain';
+import { WalletFetcher } from './wallet';
+import { WalletRouterFactory } from './wallet/router';
 
 const app = express()
 
@@ -82,5 +84,8 @@ app.use('/arbitrum-nitro', arbitrumRouter)
 // Avalanche
 const avalancheRouter = createAvalancheRouter();
 app.use('/avalanche', avalancheRouter)
+
+const walletRouterFactory = new WalletRouterFactory(formatter);
+app.use('/wallet', walletRouterFactory.make())
 
 app.listen(8081)
