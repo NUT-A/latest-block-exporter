@@ -1,6 +1,6 @@
 import Web3 from 'web3';
 
-export class WalletFetcher {
+export class ConcreteNetworkWalletFetcher {
   private web3: Web3;
 
   constructor(rpc: string) {
@@ -16,5 +16,31 @@ export class WalletFetcher {
     } catch (e) {
       return null;
     }
+  }
+}
+
+export class WalletFetcher {
+  private ethMainnetFetcher: ConcreteNetworkWalletFetcher;
+  private ethGoerliFetcher: ConcreteNetworkWalletFetcher;
+
+  constructor() {
+    this.ethMainnetFetcher = new ConcreteNetworkWalletFetcher('https://eth.rpc.blxrbdn.com');
+    this.ethGoerliFetcher = new ConcreteNetworkWalletFetcher('https://eth-goerli.public.blastapi.io');
+  }
+
+  private getFetcher(network: Network): ConcreteNetworkWalletFetcher {
+    switch (network) {
+      case 'eth-mainnet':
+        return this.ethMainnetFetcher;
+      case 'eth-goerli':
+        return this.ethGoerliFetcher;
+      default:
+        throw new Error('Invalid network');
+    }
+  }
+
+  public async getBalance(network: Network, address: string): Promise<number | null> {
+    const fetcher = this.getFetcher(network);
+    return fetcher.getBalance(address);
   }
 }

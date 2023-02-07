@@ -2,8 +2,8 @@ function prometheusFormatBlock(name: string, blockchain: string, number: number)
     return `#TYPE ${name} gauge\n${name}{blockchain="${blockchain}"} ${number}`
 }
 
-function prometheusFormatBalance(network: string, address: string, number: number) {
-    return `#TYPE wallet_balance gauge\nwallet_balance{network="${network}", address="${address}"} ${number}`
+function prometheusFormatBalance(network: string, indexerAddress: string, operatorAddress: string, number: number) {
+    return `#TYPE wallet_balance gauge\nwallet_balance{network="${network}", indexer_address="${indexerAddress}", operator_address="${operatorAddress}"} ${number}`
 }
 
 function prometheusFormatAllocation(network: string, indexer: string, name: string, ipfsHash: string, number: number) {
@@ -19,8 +19,8 @@ export class Formatter {
         return prometheusFormatBlock("current_block", blockchain, number)
     }
 
-    formatBalance(network: string, address: string, number: number) {
-        return prometheusFormatBalance(network, address, number)
+    formatBalance(network: string, indexerAddress: string, operatorAddress: string, number: number) {
+        return prometheusFormatBalance(network, indexerAddress, operatorAddress, number)
     }
 
     formatAllocation(network: string, indexer: string, name: string, ipfsHash: string, number: number) {

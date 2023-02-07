@@ -1,35 +1,19 @@
 import { Router } from "express";
-import { AllocationManager } from ".";
+import { GraphManager, SubgraphManager } from ".";
 import { Formatter } from "../formatter";
+import { OperatorInfo } from "./types";
 
 export class AllocationRouterFactory {
     private formatter: Formatter
+    private graphManager: GraphManager
 
-    private ethMainnetAllocationManager: AllocationManager
-    private ethGoerliAllocationManager: AllocationManager
-
-    constructor(formatter: Formatter) {
+    constructor(graphManager: GraphManager, formatter: Formatter) {
+        this.graphManager = graphManager
         this.formatter = formatter
-
-        this.ethMainnetAllocationManager = new AllocationManager("https://api.thegraph.com/subgraphs/name/graphprotocol/graph-network-mainnet")
-        this.ethGoerliAllocationManager = new AllocationManager("https://api.thegraph.com/subgraphs/name/graphprotocol/graph-network-goerli")
     }
 
     private async getAllocations(network: Network, indexer: string): Promise<string> {
-        let manager: AllocationManager;
-
-        switch (network) {
-            case "eth-mainnet":
-                manager = this.ethMainnetAllocationManager;
-                break;
-            case "eth-goerli":
-                manager = this.ethGoerliAllocationManager;
-                break;
-            default:
-                throw new Error("Invalid network");
-        }
-
-        const allocations = await manager.fetchAllocation(indexer);
+        const allocations = await this.graphManager.fetchAllocations(network, indexer);
         
         return allocations.map((allocation) => {
             return this.formatter.formatAllocation(network, indexer, allocation.name, allocation.ipfsHash, allocation.creationTime)
@@ -51,8 +35,21 @@ export class AllocationRouterFactory {
         return allocations.join("\n\n");
     }
 
+    public getOperators(network: Network, indexer: string): Promise<OperatorInfo[]> {
+        return this.graphManager.fetchOperators(network, indexer);
+    }
+
     public make(): Router {
         const router = Router();
+
+        router.get("/t/:network/:indexer", async (req, res) => {
+            const network = req.params.network as Network;
+            const indexer = req.params.indexer as string;
+
+            const operators = await this.getOperators(network, indexer);
+
+            res.send(operators);
+        });
 
         router.get("/:network/:indexers", async (req, res) => {
             const network = req.params.network as Network;

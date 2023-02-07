@@ -7,6 +7,7 @@ import { AnyBlockchainMetricsManager } from './blockchains/blockchain';
 import { WalletFetcher } from './wallet';
 import { WalletRouterFactory } from './wallet/router';
 import { AllocationRouterFactory } from './allocation/router';
+import { GraphManager, SubgraphManager } from './allocation';
 
 const app = express()
 
@@ -86,10 +87,15 @@ app.use('/arbitrum-nitro', arbitrumRouter)
 const avalancheRouter = createAvalancheRouter();
 app.use('/avalanche', avalancheRouter)
 
-const walletRouterFactory = new WalletRouterFactory(formatter);
-app.use('/wallet', walletRouterFactory.make())
+const graphManager = new GraphManager(
+    new SubgraphManager("https://api.thegraph.com/subgraphs/name/graphprotocol/graph-network-mainnet"),
+    new SubgraphManager("https://api.thegraph.com/subgraphs/name/graphprotocol/graph-network-goerli")
+)
 
-const allocationRouterFactory = new AllocationRouterFactory(formatter)
+const allocationRouterFactory = new AllocationRouterFactory(graphManager, formatter)
 app.use('/allocation', allocationRouterFactory.make())
+
+const walletRouterFactory = new WalletRouterFactory(graphManager, formatter);
+app.use('/wallet', walletRouterFactory.make())
 
 app.listen(8081)

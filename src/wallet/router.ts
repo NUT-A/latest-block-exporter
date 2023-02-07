@@ -1,47 +1,67 @@
 import { Router } from "express";
 import { WalletFetcher } from ".";
+import { GraphManager } from "../allocation";
 import { Formatter } from "../formatter";
+
+type IndexerOperatorPair = {
+    address: string
+    operator: string
+}
 
 export class WalletRouterFactory {
     private formatter: Formatter
+    private walletFetcher: WalletFetcher;
+    private graphManager: GraphManager;
 
-    private ethMainnetFetcher: WalletFetcher;
-    private ethGoerliFetcher: WalletFetcher;
-
-    constructor(formatter: Formatter) {
+    constructor(graphManager: GraphManager, formatter: Formatter) {
+        this.graphManager = graphManager;
         this.formatter = formatter
 
-        this.ethMainnetFetcher = new WalletFetcher("https://eth.rpc.blxrbdn.com");
-        this.ethGoerliFetcher = new WalletFetcher("https://eth-goerli.public.blastapi.io");
+        this.walletFetcher = new WalletFetcher();
     }
 
-    private async getBalance(network: Network, address: string): Promise<string | null> {
-        let fetcher: WalletFetcher;
-
-        switch (network) {
-            case "eth-mainnet":
-                fetcher = this.ethMainnetFetcher;
-                break;
-            case "eth-goerli":
-                fetcher = this.ethGoerliFetcher;
-                break;
-            default:
-                throw new Error("Invalid network");
-        }
-
-        const balance = await fetcher.getBalance(address);
+    private async getBalance(network: Network, pair: IndexerOperatorPair): Promise<string | null> {
+        const balance = await this.walletFetcher.getBalance(network, pair.operator);
 
         if (balance === null) {
             return null;
         }
 
-        const response = this.formatter.formatBalance(network, address, balance);
+        const response = this.formatter.formatBalance(network, pair.address, pair.operator, balance);
 
         return response;
     }
 
+    private async getPair(network: Network, indexer: string): Promise<IndexerOperatorPair[]> {
+        const operator = await this.graphManager.fetchOperators(network, indexer);
+
+        return operator.map((operator) => {
+            return {
+                address: indexer,
+                operator: operator.id,
+            }
+        })
+    }
+
+    private async getPairs(network: Network, indexers: string[]): Promise<IndexerOperatorPair[]> {
+        const promises = indexers.map( (indexer) => { return this.getPair(network, indexer) })
+        const pairs: IndexerOperatorPair[] = []
+
+        for (const promise of promises) {
+            try {
+                pairs.push(...await promise);
+            } catch (e) {
+                console.log(e);
+            }
+        }
+
+        return pairs;   
+    }
+
     private async getBalances(network: Network, addresses: string[]): Promise<string> {
-        const promises = addresses.map( (address) => { return this.getBalance(network, address) })
+        const pairs = await this.getPairs(network, addresses);
+        const promises = pairs.map( (pair) => { return this.getBalance(network, pair) })
+        
         const balances: string[] = []
 
         for (const promise of promises) {
