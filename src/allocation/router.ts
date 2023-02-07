@@ -35,21 +35,8 @@ export class AllocationRouterFactory {
         return allocations.join("\n\n");
     }
 
-    public getOperators(network: Network, indexer: string): Promise<OperatorInfo[]> {
-        return this.graphManager.fetchOperators(network, indexer);
-    }
-
     public make(): Router {
         const router = Router();
-
-        router.get("/t/:network/:indexer", async (req, res) => {
-            const network = req.params.network as Network;
-            const indexer = req.params.indexer as string;
-
-            const operators = await this.getOperators(network, indexer);
-
-            res.send(operators);
-        });
 
         router.get("/:network/:indexers", async (req, res) => {
             const network = req.params.network as Network;

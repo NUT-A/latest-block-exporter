@@ -42,8 +42,13 @@ export class SubgraphManager {
 
         const response = await axios.post(this.subgraphURL, body)
         const responseBody = response.data as GraphQLResponse<OperatorsResponse>
+        const indexerBody = responseBody.data.indexers[0]
 
-        return responseBody.data.indexers[0].account.operators.map((operator) => {
+        if (indexerBody === undefined) {
+            return []
+        }
+
+        return indexerBody.account.operators.map((operator) => {
             return {
                 id: operator.id
             }
