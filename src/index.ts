@@ -8,6 +8,7 @@ import { WalletFetcher } from './wallet';
 import { WalletRouterFactory } from './wallet/router';
 import { AllocationRouterFactory } from './allocation/router';
 import { GraphManager, SubgraphManager } from './allocation';
+import { ConfigRouterFactory } from './config/router';
 
 const app = express()
 
@@ -97,5 +98,8 @@ app.use('/allocation', allocationRouterFactory.make())
 
 const walletRouterFactory = new WalletRouterFactory(graphManager, formatter);
 app.use('/wallet', walletRouterFactory.make())
+
+const configRouterFactory = new ConfigRouterFactory(formatter)
+app.use('/config', configRouterFactory.make())
 
 app.listen(8081)

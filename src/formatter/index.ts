@@ -10,6 +10,10 @@ function prometheusFormatAllocation(network: string, indexer: string, name: stri
     return `#TYPE allocation_lifetime gauge\nallocation_lifetime{network="${network}", indexer="${indexer}", name="${ipfsHash} (${name})"} ${number}`
 }
 
+function prometheusFormatConfig(name: string, network: string, value: number) {
+    return `#TYPE ${name} gauge\n${name}{network="${network}"} ${value}`
+}
+
 export class Formatter {
     formatLatest(blockchain: string, number: number) {
         return prometheusFormatBlock("latest_block", blockchain, number)
@@ -25,5 +29,9 @@ export class Formatter {
 
     formatAllocation(network: string, indexer: string, name: string, ipfsHash: string, number: number) {
         return prometheusFormatAllocation(network, indexer, name, ipfsHash, number)
+    }
+
+    formatConfig(name: string, network: string, value: number) {
+        return prometheusFormatConfig(name, network, value)
     }
 }
