@@ -13,7 +13,7 @@ export type GraphQLResponse<T> = {
 }
 
 export type AllocationResponseElement = {
-    createdAt: number
+    createdAtEpoch: number
     subgraphDeployment: {
         ipfsHash: string
         originalName: string
@@ -36,4 +36,10 @@ export type IndexerResponseElement = {
 
 export type OperatorsResponse = {
     indexers: IndexerResponseElement[]
+}
+
+export type BlockResponse = {
+    epoches: {
+        id: string
+    }[]
 }

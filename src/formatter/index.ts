@@ -7,7 +7,7 @@ function prometheusFormatBalance(network: string, indexerAddress: string, operat
 }
 
 function prometheusFormatAllocation(network: string, indexer: string, name: string, ipfsHash: string, number: number) {
-    return `#TYPE allocation_lifetime gauge\nallocation_lifetime{network="${network}", indexer="${indexer}", name="${ipfsHash} (${name})"} ${number}`
+    return `#TYPE allocation_epoch gauge\nallocation_epoch{network="${network}", indexer="${indexer}", name="${ipfsHash} (${name})"} ${number}`
 }
 
 function prometheusFormatConfig(name: string, network: string, value: number) {
@@ -33,5 +33,9 @@ export class Formatter {
 
     formatConfig(name: string, network: string, value: number) {
         return prometheusFormatConfig(name, network, value)
+    }
+
+    formatEpoch(network: string, epoch: number): string {
+        return prometheusFormatConfig("epoch", network, epoch)
     }
 }

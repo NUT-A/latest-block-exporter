@@ -35,8 +35,22 @@ export class AllocationRouterFactory {
         return allocations.join("\n\n");
     }
 
+    private async fetchCurrentEpoch(network: Network): Promise<string> {
+        const epoch = await this.graphManager.fetchCurrentEpoch(network);
+
+        return this.formatter.formatEpoch(network, epoch);
+    }
+
     public make(): Router {
         const router = Router();
+
+        router.get("/:network/epoch", async (req, res) => {
+            const network = req.params.network as Network;
+
+            const epoch = await this.fetchCurrentEpoch(network);
+
+            res.send(epoch);
+        });
 
         router.get("/:network/:indexers", async (req, res) => {
             const network = req.params.network as Network;
